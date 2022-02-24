@@ -1,0 +1,19 @@
+{
+  "name": "pdfpooper",
+  "version": "0.0.1",
+  "description": "turn html and a json object of values into a pdf",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "html",
+    "pdf",
+    "javascript"
+  ],
+  "author": "Matthew D Brooks",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^13.4.0"
+  }
+}

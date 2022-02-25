@@ -43,6 +43,10 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 	const browser = await puppeteer.launch();
 	const page = await browser.newPage();
 	page.setContent(html.toString());
+	//you can get information from puppeteer's chrome console using this event
+	//I'm gonna use it here to get debug statements from the callback that I passed
+	//into headless chrome
+	page.on('console', (msg) => console.log(msg));
 	//okay so the 2nd argument passed to page.evaluate is the object that will be passed
 	//into the headless chrome instance as serialized JSON
 	//so, it needs to be serializeable, and the callback that is ran on the browser side
@@ -51,7 +55,17 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 		keyValuePairs.forEach((keyValuePair) => {
 			const targetElement = document.getElementById(keyValuePair.id);
 			if (targetElement) {
-				targetElement.value = keyValuePair.value;
+				console.log(targetElement);
+				switch(targetElement.tagName) {
+					case 'INPUT':
+						targetElement.value = keyValuePair.value;
+						break;
+					case 'IMG':
+						targetElement.src = keyValuePair.value;
+						break;
+					default:
+						console.warn(`tag name (${targetElement.tagName})of target element for data insertion isn't implemented`);
+				}
 			}
 			const debugArea = document.createElement("textarea");
 			debugArea.innerText = JSON.stringify(keyValuePairs);

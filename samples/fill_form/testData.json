@@ -1,0 +1,5 @@
+[
+	{ "id": "name_input", "value":"Matt" },
+	{ "id": "phone_number_input", "value": "123-4567-8901" },
+	{ "id": "email_input", "value": "kitty@gmail.com" }
+]

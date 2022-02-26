@@ -5,10 +5,22 @@ div.inputsContainer{
 	display: flex;
 	flex-direction column;
 }
+
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+}
+
+div#imgContainer {
+	display: block;
+	width: 300px;
+	height: 300px;
+}
+
+div#imgContainer > .svg {
+	width: 100%;
+	height: 100%;
 }
 </style>
 </head>
@@ -17,6 +29,7 @@ div.inputsContainer{
 		<label>Name:<input type="text" id="name_input"/></label>
 		<label>Phone#:<input type="text" id="phone_number_input"/></label>
 		<label>Email:<input type="text" id="email_input"/></label>
+		<div id="imageContainer"></div>
 	</div>
 </body>
 </html>

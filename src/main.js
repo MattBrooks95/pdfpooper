@@ -18,6 +18,8 @@ const multiPartFormMiddleware = multer({
 	}
 });
 
+//we would need to allow for a dynamic value of files, particularly for the images
+//for the sake of this being an example I will leave the number of 'image' files at 1
 const fields = [
 	{
 		name: 'data',
@@ -26,6 +28,10 @@ const fields = [
 	{
 		name: 'template',
 		maxCount: 1,
+	},
+	{
+		name: 'image',
+		maxCount: 1,
 	}
 ];
 
@@ -33,10 +39,13 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 	//console.log(request.files);
 	const dataFile = request.files.data[0];
 	const templateFile = request.files.template[0];
+	const imageFile = request.files.image[0];
 	const json = JSON.parse(dataFile.buffer);
 	const html = templateFile.buffer;
 	//console.log('json:', json);
 	//console.log('html:', html.toString());
+	const imageContents = imageFile.buffer.toString();
+	console.log('image contents in express:', imageContents);
 
 	const keyValuePairs = json;
 
@@ -51,27 +60,37 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 	//into the headless chrome instance as serialized JSON
 	//so, it needs to be serializeable, and the callback that is ran on the browser side
 	//seems like it needs to have that data listed as a parameter to the function
-	await page.evaluate((keyValuePairs) => {
+	await page.evaluate((keyValuePairs, imageContents) => {
 		keyValuePairs.forEach((keyValuePair) => {
 			const targetElement = document.getElementById(keyValuePair.id);
-			if (targetElement) {
+			if (!targetElement) {
+				console.log(`element with id:${keyValuePair.id} was not found`);
+				return;
+			}
+			if (keyValuePair.type) {
 				console.log(targetElement);
-				switch(targetElement.tagName) {
-					case 'INPUT':
+				switch(keyValuePair.type) {
+					case 'textinput':
 						targetElement.value = keyValuePair.value;
 						break;
-					case 'IMG':
-						targetElement.src = keyValuePair.value;
+					case 'image':
+						const svg = document.createElement("svg");
+						svg.innerHTML = imageContents
+						targetElement.appendChild(svg);
 						break;
 					default:
-						console.warn(`tag name (${targetElement.tagName})of target element for data insertion isn't implemented`);
+						console.warn(`element type (${keyValuePair.type})of target element for data insertion isn't implemented`);
 				}
 			}
-			const debugArea = document.createElement("textarea");
-			debugArea.innerText = JSON.stringify(keyValuePairs);
-			document.body.appendChild(debugArea);
+			//const imageDebugArea = document.createElement("textarea");
+			//imageDebugArea.innerText = imageFile;
+			//document.body.appendChild(imageDebugArea);
 		});
-	}, keyValuePairs);
+		const debugArea = document.createElement("textarea");
+		debugArea.innerText = JSON.stringify(keyValuePairs);
+		document.body.appendChild(debugArea);
+		console.log('image contents in browser:', imageContents);
+	}, keyValuePairs, imageContents);
 	const pdf = await page.pdf();
 	response.status(200).send(pdf);
 

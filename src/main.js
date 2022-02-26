@@ -50,6 +50,10 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 	const keyValuePairs = json;
 
 	const browser = await puppeteer.launch();
+	//setting devtools sets headless to 'false' anyway,
+	//but TIL you can use a debugger statement in the evaluate callback for puppeteer
+	//and then debug your page within the browser context
+	//const browser = await puppeteer.launch({ headless: false, devtools: true });
 	const page = await browser.newPage();
 	page.setContent(html.toString());
 	//you can get information from puppeteer's chrome console using this event
@@ -74,9 +78,10 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 						targetElement.value = keyValuePair.value;
 						break;
 					case 'image':
-						const svg = document.createElement("svg");
-						svg.innerHTML = imageContents
-						targetElement.appendChild(svg);
+						const img = document.createElement("img");
+						const blob = new Blob([imageContents], {type: 'image/svg+xml'});
+						targetElement.appendChild(img);
+						img.src = URL.createObjectURL(blob);
 						break;
 					default:
 						console.warn(`element type (${keyValuePair.type})of target element for data insertion isn't implemented`);
@@ -86,11 +91,13 @@ app.post('/makepdf', multiPartFormMiddleware.fields(fields), async (request, res
 			//imageDebugArea.innerText = imageFile;
 			//document.body.appendChild(imageDebugArea);
 		});
-		const debugArea = document.createElement("textarea");
-		debugArea.innerText = JSON.stringify(keyValuePairs);
-		document.body.appendChild(debugArea);
+		//const debugArea = document.createElement("textarea");
+		//debugArea.innerText = JSON.stringify(keyValuePairs);
+		//document.body.appendChild(debugArea);
 		console.log('image contents in browser:', imageContents);
+		//debugger;
 	}, keyValuePairs, imageContents);
+
 	const pdf = await page.pdf();
 	response.status(200).send(pdf);
 

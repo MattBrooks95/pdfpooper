@@ -18,7 +18,11 @@ div#imageContainer {
 	height: 300px;
 }
 
-div#imageContainer > .svg {
+.green {
+	background-color: green;
+}
+
+div#imageContainer > img {
 	width: 100%;
 	height: 100%;
 }
@@ -26,10 +30,13 @@ div#imageContainer > .svg {
 </head>
 <body>
 	<div class="inputsContainer">
-		<label>Name:<input type="text" id="name_input"/></label>
-		<label>Phone#:<input type="text" id="phone_number_input"/></label>
-		<label>Email:<input type="text" id="email_input"/></label>
-		<div id="imageContainer"></div>
+		<div style="display: block;">
+			<label>Name:<input type="text" id="name_input"/></label>
+			<label>Phone#:<input type="text" id="phone_number_input"/></label>
+			<label>Email:<input type="text" id="email_input"/></label>
+		</div>
 	</div>
+	<div id="imageContainer" class="green"></div>
+	<span> the image is constrained within the container div's size. I wanted to show this with a background color, but it isn't printed to the pdf for some reason</span>
 </body>
 </html>
